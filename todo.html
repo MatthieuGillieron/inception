@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inception — Todo Soutenance</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e28;
+    --border: #252a38;
+    --border2: #2e3548;
+    --text: #e2e8f4;
+    --text2: #8891a8;
+    --text3: #555e75;
+    --accent: #5b8af5;
+    --accent2: #3d6de0;
+    --green: #3ecf8e;
+    --green-bg: #0d2a1e;
+    --green-border: #1a5238;
+    --red: #f87171;
+    --red-bg: #2a1010;
+    --yellow: #fbbf24;
+    --yellow-bg: #2a2010;
+    --purple: #a78bfa;
+    --purple-bg: #1e1a2a;
+    --radius: 8px;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-tag {
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-family: var(--mono);
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 0.5rem;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    margin-bottom: 2rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  .progress-pct {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green);
+    font-family: var(--sans);
+  }
+
+  .progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg3);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 1.75rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+
+  .section-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .badge-critical { background: var(--red-bg); color: var(--red); border: 1px solid #5a1a1a; }
+  .badge-setup    { background: var(--purple-bg); color: var(--purple); border: 1px solid #3d2e5e; }
+  .badge-net      { background: #1a2440; color: #7ba4f5; border: 1px solid #2a3860; }
+  .badge-sys      { background: #1a2020; color: #5ecece; border: 1px solid #1e3838; }
+  .badge-conf     { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #5a3a10; }
+  .badge-svc      { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+  .badge-oral     { background: #1e2a1e; color: #6ecf6e; border: 1px solid #2a5a2a; }
+
+  .section-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    letter-spacing: 0.01em;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* Items */
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    margin-bottom: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .item:hover { background: var(--bg3); border-color: var(--border2); }
+
+  .item.done {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+
+  .item.done .label {
+    text-decoration: line-through;
+    color: var(--text3);
+  }
+
+  .item.done .sub {
+    text-decoration: line-through;
+    color: var(--text3);
+    opacity: 0.5;
+  }
+
+  .item.critical-item {
+    border-color: #3a1515;
+    background: #140c0c;
+  }
+
+  .item.critical-item:hover { background: #1a0f0f; border-color: #5a2020; }
+  .item.critical-item.done { background: var(--bg); border-color: var(--border); }
+
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border2);
+    background: var(--bg3);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .item.done .checkbox {
+    background: var(--green-bg);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+
+  .item.critical-item .checkbox {
+    border-color: #5a2020;
+  }
+
+  .content { flex: 1; min-width: 0; }
+
+  .label {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    font-weight: 500;
+    font-family: var(--mono);
+  }
+
+  .sub {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-top: 5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    border-left: 2px solid var(--border);
+    padding-left: 8px;
+  }
+
+  .warn-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid #5a1a1a;
+    letter-spacing: 0.05em;
+    font-family: var(--mono);
+  }
+
+  .new-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+    background: #0d2020;
+    color: #3ecfcf;
+    border: 1px solid #1a4040;
+    letter-spacing: 0.05em;
+    font-family: var(--mono);
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 2rem 0;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">42 Lausanne · Inception</div>
+  <h1>Todo <span>Soutenance</span></h1>
+  <div class="subtitle">VirtualBox Bridged · Docker Compose · NGINX + WP + MariaDB</div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <div class="progress-label" id="prog-label">Calcul…</div>
+    <div class="progress-pct" id="prog-pct">0%</div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">Tout</button>
+  <button class="filter-btn" data-filter="todo">À faire</button>
+  <button class="filter-btn" data-filter="done">Fait</button>
+</div>
+
+<div id="todo-list"></div>
+
+<script>
+const sections = [
+  {
+    title: "0 — Pré-checks soutenance",
+    badge: "CRITIQUE",
+    badgeClass: "badge-critical",
+    items: [
+      {
+        id: "git-no-creds", label: "Vérifier aucun credential tracké dans Git", critical: true, isNew: true, isWarn: true,
+        sub: `git log --all -- '*.env' 'secrets/*'\n→ doit retourner RIEN\ngit status → secrets/ et srcs/.env doivent être ignorés\n# Si des credentials sont dans le repo → note 0 immédiate`
+      },
+      {
+        id: "gitignore-check", label: "Confirmer .gitignore couvre secrets/ et srcs/.env", critical: true, isNew: true, isWarn: true,
+        sub: `cat ~/inception/.gitignore\n→ doit contenir : secrets/\n→ doit contenir : srcs/.env`
+      },
+      {
+        id: "docker-reset", label: "Tester make depuis zéro après reset Docker complet", critical: true, isNew: true, isWarn: true,
+        sub: `# Commande exacte de l'évaluateur :\ndocker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null\n\n# Puis :\nmake\n→ tout doit rebuild et démarrer proprement`
+      },
+      {
+        id: "compose-no-host", label: "Vérifier docker-compose.yml : pas de network:host ni links:", critical: true, isNew: true, isWarn: true,
+        sub: `grep -E 'network: host|links:' ~/inception/srcs/docker-compose.yml\n→ doit retourner RIEN`
+      },
+      {
+        id: "dockerfile-from", label: "Vérifier que chaque Dockerfile commence par FROM debian:...", critical: true, isNew: true, isWarn: true,
+        sub: `head -1 ~/inception/srcs/requirements/nginx/Dockerfile\nhead -1 ~/inception/srcs/requirements/wordpress/Dockerfile\nhead -1 ~/inception/srcs/requirements/mariadb/Dockerfile\n→ chacun doit commencer par FROM debian:XXXXX (version penultimate stable)`
+      },
+      {
+        id: "dockerfile-no-daemon", label: "Vérifier absence de tail -f / sleep infinity dans les Dockerfiles", critical: true, isNew: true, isWarn: true,
+        sub: `grep -r 'tail -f\|sleep infinity\|tail -f /dev/null' ~/inception/srcs/requirements/\n→ doit retourner RIEN\n# Aussi vérifier ENTRYPOINT : pas de "nginx & bash" ou "bash" seul`
+      },
+      {
+        id: "no-link-flag", label: "Vérifier absence de --link dans les scripts et Makefile", critical: true, isNew: true, isWarn: true,
+        sub: `grep -r '\-\-link' ~/inception/\n→ doit retourner RIEN`
+      },
+      {
+        id: "image-names", label: "Vérifier que les noms d'images = noms des services", isNew: true,
+        sub: `# Dans docker-compose.yml, chaque service doit avoir :\nimage: nginx (ou wordpress, mariadb)\n→ le nom de l'image doit correspondre exactement au nom du service`
+      },
+      {
+        id: "restart-policy", label: "Vérifier restart: on-failure sur chaque service", isNew: true,
+        sub: `grep -A5 'services:' ~/inception/srcs/docker-compose.yml | grep restart\n→ doit apparaître 3 fois (nginx, wordpress, mariadb)`
+      },
+    ]
+  },
+  {
+    title: "1 — Setup VM (VirtualBox + Debian)",
+    badge: "SETUP",
+    badgeClass: "badge-setup",
+    items: [
+      { id: "iso", label: "Télécharger ISO Debian AMD64", sub: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/\n→ debian-XX-amd64-netinst.iso" },
+      { id: "vm-create", label: "Créer la VM dans VirtualBox", sub: "New → Linux / Debian 64-bit\n4096MB RAM, 2 CPU, 30GB disque (VDI dynamique)\nRéseau : Bridged Adapter → sélectionner ta carte réseau" },
+      { id: "debian-install", label: "Installer Debian", sub: "Langue: English, hostname: magillie, domain: vide\nRoot password + user magillie\nPartition: Guided - use entire disk\nLogiciels: SSH server + standard utilities UNIQUEMENT" },
+      { id: "eject", label: "Éjecter l'ISO et rebooter", sub: "VirtualBox → Settings → Storage → retirer l'ISO → reboot" },
+    ]
+  },
+  {
+    title: "2 — Config réseau (Bridged)",
+    badge: "RÉSEAU",
+    badgeClass: "badge-net",
+    items: [
+      { id: "get-ip", label: "Récupérer l'IP de la VM", sub: "ip a\n→ noter l'IP sur enp0s3 (ex: 192.168.1.x)" },
+      { id: "ssh-connect", label: "Se connecter en SSH depuis le terminal Linux hôte", sub: "ssh magillie@192.168.1.x\n# IP directe, pas de port forwarding" },
+      { id: "hosts-host", label: "Ajouter magillie.42.fr dans /etc/hosts du PC HÔTE", sub: "# Sur le PC de l'école (pas la VM) :\necho '192.168.1.x magillie.42.fr' | sudo tee -a /etc/hosts\n# Remplace 192.168.1.x par l'IP de ta VM" },
+    ]
+  },
+  {
+    title: "3 — Config système dans la VM",
+    badge: "SYSTÈME",
+    badgeClass: "badge-sys",
+    items: [
+      { id: "sudo-install", label: "Installer sudo", sub: "su -\napt install sudo -y\nusermod -aG sudo magillie\nexit && exit\n# Se reconnecter en SSH" },
+      { id: "vim", label: "Installer vim", sub: "sudo apt install vim -y" },
+      { id: "docker-install", label: "Installer Docker", sub: "sudo apt install curl -y\ncurl -fsSL https://get.docker.com | sudo sh\nsudo usermod -aG docker magillie\nsudo systemctl enable docker\nsudo systemctl start docker\n# Se déconnecter/reconnecter" },
+      { id: "compose-install", label: "Installer Docker Compose", sub: "sudo apt install docker-compose-plugin -y\ndocker compose version" },
+      { id: "lazydocker", label: "Installer lazydocker", sub: "curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash\necho 'export PATH=$PATH:~/.local/bin' >> ~/.bashrc\nsource ~/.bashrc\nlazydocker" },
+    ]
+  },
+  {
+    title: "4 — Arborescence & config",
+    badge: "CONFIG",
+    badgeClass: "badge-conf",
+    items: [
+      { id: "arbo", label: "Créer l'arborescence du projet", sub: "mkdir -p ~/inception/srcs/requirements/nginx/{conf,tools}\nmkdir -p ~/inception/srcs/requirements/wordpress/{conf,tools}\nmkdir -p ~/inception/srcs/requirements/mariadb/{conf,tools}\nmkdir -p ~/inception/secrets\ntouch ~/inception/Makefile\ntouch ~/inception/srcs/docker-compose.yml\ntouch ~/inception/srcs/.env" },
+      { id: "secrets", label: "Créer les fichiers secrets", sub: "echo \"wp_db_password\" > ~/inception/secrets/db_password.txt\necho \"root_password\" > ~/inception/secrets/db_root_password.txt" },
+      { id: "env", label: "Remplir le .env", sub: "DOMAIN_NAME=magillie.42.fr\nMYSQL_DATABASE=wordpress\nMYSQL_USER=wp_user\n..." },
+      { id: "gitignore", label: "Créer .gitignore", sub: "secrets/\nsrcs/.env" },
+      { id: "hosts-vm", label: "Configurer /etc/hosts de la VM", sub: "echo '127.0.0.1 magillie.42.fr' | sudo tee -a /etc/hosts" },
+      { id: "volumes", label: "Créer les dossiers de volumes", sub: "sudo mkdir -p /home/magillie/data/wordpress\nsudo mkdir -p /home/magillie/data/mariadb\nsudo chown -R magillie:magillie /home/magillie/data" },
+    ]
+  },
+  {
+    title: "5 — MariaDB",
+    badge: "SERVICE",
+    badgeClass: "badge-svc",
+    items: [
+      { id: "mariadb-dockerfile", label: "Écrire Dockerfile MariaDB", sub: "srcs/requirements/mariadb/Dockerfile" },
+      { id: "mariadb-conf", label: "Écrire script init DB", sub: "srcs/requirements/mariadb/tools/init.sh" },
+      { id: "mariadb-test", label: "Tester MariaDB seul", sub: "docker build + docker run → vérifier connexion" },
+    ]
+  },
+  {
+    title: "6 — WordPress + PHP-FPM",
+    badge: "SERVICE",
+    badgeClass: "badge-svc",
+    items: [
+      { id: "wp-dockerfile", label: "Écrire Dockerfile WordPress", sub: "srcs/requirements/wordpress/Dockerfile\n→ pas de NGINX dedans" },
+      { id: "wp-conf", label: "Écrire script install WordPress", sub: "srcs/requirements/wordpress/tools/install.sh" },
+      { id: "wp-users", label: "2 users WP (admin sans 'admin' dans le nom)", sub: "magillie_admin + wp_editor via WP-CLI\n→ vérifier : le username admin ne contient pas 'admin' ni 'Admin'" },
+    ]
+  },
+  {
+    title: "7 — NGINX",
+    badge: "SERVICE",
+    badgeClass: "badge-svc",
+    items: [
+      { id: "nginx-dockerfile", label: "Écrire Dockerfile NGINX", sub: "srcs/requirements/nginx/Dockerfile" },
+      { id: "nginx-tls", label: "Générer certificat TLS auto-signé", sub: "openssl req -x509 → TLSv1.2 ou TLSv1.3 uniquement\n→ port 80 doit être absent/bloqué" },
+      { id: "nginx-conf", label: "Écrire nginx.conf", sub: "port 443 uniquement\nproxy_pass vers wordpress:9000\n→ PAS de listen 80" },
+    ]
+  },
+  {
+    title: "8 — Docker Compose & Makefile",
+    badge: "CONFIG",
+    badgeClass: "badge-conf",
+    items: [
+      { id: "compose", label: "Écrire docker-compose.yml", sub: "3 services + 2 volumes nommés + 1 network\nrestart: on-failure sur chaque service\npas de network:host, pas de links:" },
+      { id: "makefile", label: "Écrire le Makefile", sub: "all, down, clean, fclean, re\nappelle docker compose -f srcs/docker-compose.yml" },
+    ]
+  },
+  {
+    title: "9 — Tests & validation",
+    badge: "TESTS",
+    badgeClass: "badge-conf",
+    items: [
+      { id: "launch", label: "Lancer make et vérifier", sub: "make\nhttps://magillie.42.fr → WordPress s'affiche" },
+      {
+        id: "port80-block", label: "Vérifier que http:// est inaccessible", isNew: true,
+        sub: `curl -k http://magillie.42.fr\n→ doit échouer / connection refused\n# L'évaluateur teste activement cela`
+      },
+      {
+        id: "volume-inspect", label: "Vérifier docker volume inspect retourne /home/magillie/data/", isNew: true,
+        sub: `docker volume ls\ndocker volume inspect inception_wordpress_data\ndocker volume inspect inception_mariadb_data\n→ "Mountpoint" doit contenir /home/magillie/data/`
+      },
+      { id: "persistence", label: "Tester la persistance", sub: "sudo reboot → make → tout fonctionne encore\n→ le commentaire WP posté avant reboot est toujours là" },
+      { id: "db-check", label: "Vérifier la base de données", sub: "docker exec -it mariadb mysql -u root -p\nSHOW DATABASES; USE wordpress; SHOW TABLES;\n→ la DB ne doit pas être vide" },
+      {
+        id: "admin-username", label: "Vérifier que l'username admin ne contient pas 'admin'", isNew: true,
+        sub: `# Dashboard WP → Users\n→ le username admin ne doit PAS contenir : admin, Admin, administrator, admin-xxx\n# magillie_admin ✓  (contient 'admin' en suffixe — À VÉRIFIER avec l'évaluateur)\n# Suggestion safer : magillie_wp ou magillie_root`
+      },
+      { id: "no-creds", label: "Vérifier aucun credential dans le repo", sub: "git log --all -- '*.env' '*/secrets/*'\n→ doit être vide" },
+      { id: "comment", label: "Poster un commentaire WP", sub: "https://magillie.42.fr → laisser un commentaire\n→ vérifier après reboot que le commentaire persiste" },
+      { id: "edit", label: "Éditer une page WP", sub: "Dashboard → Pages → Edit → vérifier changement visible sur le site" },
+      { id: "network-ls", label: "Vérifier docker network ls", isNew: true, sub: "docker network ls\n→ le réseau du projet doit être visible\ndocker compose ps → 3 containers UP" },
+    ]
+  },
+  {
+    title: "10 — Préparer l'oral théorique",
+    badge: "ORAL",
+    badgeClass: "badge-oral",
+    items: [
+      {
+        id: "oral-docker", label: "Expliquer Docker et docker-compose en termes simples", isNew: true,
+        sub: `Docker : isole un process dans un container (namespace + cgroups)\nDocker Compose : orchestre plusieurs containers avec un seul fichier YAML\n→ sans compose : docker run à la main pour chaque service, pas de réseau auto`
+      },
+      {
+        id: "oral-image-vs-compose", label: "Différence image avec/sans docker-compose", isNew: true,
+        sub: `Sans compose : docker build + docker run --network ... --volume ... (tout à la main)\nAvec compose : tout déclaré dans docker-compose.yml, docker compose up suffit\n→ l'image elle-même ne change pas, c'est la gestion qui change`
+      },
+      {
+        id: "oral-docker-vs-vm", label: "Avantages Docker vs VM", isNew: true,
+        sub: `VM : OS complet virtualisé → lourd, lent à démarrer, beaucoup de RAM\nDocker : partage le kernel hôte → léger, démarre en secondes, portable\n→ mais VM = isolation complète (OS différents possibles)`
+      },
+      {
+        id: "oral-structure", label: "Expliquer la structure de répertoires du projet", isNew: true,
+        sub: `inception/\n├── Makefile           ← à la racine du repo\n├── srcs/\n│   ├── docker-compose.yml\n│   ├── .env              ← gitignored\n│   └── requirements/\n│       ├── nginx/\n│       ├── wordpress/\n│       └── mariadb/\n└── secrets/              ← gitignored`
+      },
+    ]
+  },
+];
+
+const STORAGE_KEY = "inception_todo_v2";
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {} }
+let state = loadState();
+let filter = "all";
+
+function render() {
+  const list = document.getElementById("todo-list");
+  list.innerHTML = "";
+  let total = 0, done = 0;
+
+  sections.forEach(sec => {
+    const secEl = document.createElement("div");
+    secEl.className = "section";
+
+    const header = document.createElement("div");
+    header.className = "section-header";
+
+    const badge = document.createElement("span");
+    badge.className = `section-badge ${sec.badgeClass}`;
+    badge.textContent = sec.badge;
+
+    const title = document.createElement("span");
+    title.className = "section-title";
+    title.textContent = sec.title;
+
+    const secDone = sec.items.filter(i => state[i.id]).length;
+    const count = document.createElement("span");
+    count.className = "section-count";
+    count.textContent = `${secDone}/${sec.items.length}`;
+
+    header.appendChild(badge);
+    header.appendChild(title);
+    header.appendChild(count);
+    secEl.appendChild(header);
+
+    let hasVisible = false;
+
+    sec.items.forEach(item => {
+      total++;
+      const isDone = state[item.id] === true;
+      if (isDone) done++;
+
+      if (filter === "todo" && isDone) return;
+      if (filter === "done" && !isDone) return;
+
+      hasVisible = true;
+
+      const div = document.createElement("div");
+      div.className = "item" + (isDone ? " done" : "") + (item.critical ? " critical-item" : "");
+
+      const labelHtml = item.label
+        + (item.isWarn ? '<span class="warn-tag">ÉVAL STOPPE</span>' : '')
+        + (item.isNew ? '<span class="new-tag">NOUVEAU</span>' : '');
+
+      div.innerHTML = `
+        <div class="checkbox">${isDone ? "✓" : ""}</div>
+        <div class="content">
+          <div class="label">${labelHtml}</div>
+          ${item.sub ? `<div class="sub">${item.sub}</div>` : ""}
+        </div>
+      `;
+
+      div.addEventListener("click", () => {
+        state[item.id] = !state[item.id];
+        saveState(state);
+        render();
+      });
+
+      secEl.appendChild(div);
+    });
+
+    if (hasVisible) list.appendChild(secEl);
+  });
+
+  const pct = Math.round((done / total) * 100);
+  document.getElementById("prog-fill").style.width = pct + "%";
+  document.getElementById("prog-label").textContent = `${done} / ${total} étapes complétées`;
+  document.getElementById("prog-pct").textContent = pct + "%";
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    filter = btn.dataset.filter;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
